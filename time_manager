@@ -1,0 +1,34 @@
+import time
+
+class TimeManager:
+    def __init__(self):
+        self.init_time = time.time()
+        self.time_block = 0
+        print(f'Init time: {self.init_time}')
+
+    def __enter__(self):
+        self.time_block += 1
+        self.start_time = time.time()
+        print(f'Block: {self.time_block} start time: {self.start_time}')
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.stop_time = time.time()
+        time_interval = self.stop_time - self.start_time
+        time_from_init_interval = self.stop_time - self.init_time
+
+        print(f'Block: {self.time_block} time passed: {round(time_interval, 5)}')
+        if self.time_block == 1:
+            print(f'All blocks time passed from init: {round(time_from_init_interval, 5)}')
+        self.time_block -= 1
+    
+    def handle_errors(self, exc):
+        raise Exception(exc)
+
+with TimeManager() as tm:
+    try:
+        lst = [0] * 10000000
+    except MemoryError as e:
+        tm.handle_errors(e)
+    with tm:
+        lst = [0] * 20000000
